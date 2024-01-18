@@ -7,6 +7,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^6.2.0
   '@typescript-eslint/parser': ^6.2.0
   bybit-api: ^3.7.1
+  dotenv: ^16.0.3
   eslint: ^8.45.0
   fast-csv: ^4.3.6
   lokijs: ^1.5.12
@@ -19,6 +20,7 @@ specifiers:
 
 dependencies:
   bybit-api: 3.8.1
+  dotenv: 16.3.1
   fast-csv: 4.3.6
   lokijs: 1.5.12
   pg: 8.11.3
@@ -751,6 +753,11 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dotenv/16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /dottie/2.0.6:
     resolution: {integrity: sha512-iGCHkfUc5kFekGiqhe8B/mdaurD+lakO9txNnTvKtA6PISrw86LgqHvRzWYPyoE2Ph5aMIrCw9/uko6XHTKCwA==}
