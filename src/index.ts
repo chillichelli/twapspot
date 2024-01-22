@@ -2,7 +2,7 @@ import { client } from "./entities/Client";
 
 require("dotenv").config();
 
-const TICKER = "ARBUSDT";
+const TICKER = "ONDOUSDT";
 
 if (
   !process.env.INTERVAL_BETWEEN_ORDERS_IN_SECONDS ||
