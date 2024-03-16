@@ -2,18 +2,18 @@ import { client } from "./entities/Client";
 
 require("dotenv").config();
 
-const TICKER = "ONDOUSDT";
-
 if (
   !process.env.INTERVAL_BETWEEN_ORDERS_IN_SECONDS ||
   !process.env.DURATION_IN_SECONDS ||
   !process.env.QTY_TO_BUY ||
   !process.env.BYBIT_ACCESS_KEY ||
-  !process.env.BYBIT_SECRET_KEY
+  !process.env.BYBIT_SECRET_KEY ||
+  !process.env.TICKER
 ) {
   throw new Error("Environment variables not set");
 }
 
+const TICKER = process.env.TICKER;
 const INTERVAL = +process.env.INTERVAL_BETWEEN_ORDERS_IN_SECONDS;
 const DURATION = +process.env.DURATION_IN_SECONDS;
 
@@ -26,13 +26,14 @@ const timer = (ms: number) => new Promise((res) => setTimeout(res, ms));
 const loop = async () => {
   for (let i = 0; i < DURATION / INTERVAL; i++) {
     console.log(`Submitting order: ${i}`);
-    await client.submitOrder({
+    const resp = await client.submitOrder({
       category: "spot",
       symbol: TICKER,
       side: "Buy",
       orderType: "Market",
       qty: `${AMOUNT_PER_ORDER}`,
     });
+    console.log(resp.retMsg);
     await timer(INTERVAL * 1000);
   }
 };
