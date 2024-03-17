@@ -1,8 +1,9 @@
 import { client } from "./entities/Client";
+import bigDecimal from 'js-big-decimal';
 
 require("dotenv").config();
 
-const TICKER = "ONDOUSDT";
+const TICKER = "PEPEUSDT";
 
 if (
   !process.env.INTERVAL_BETWEEN_ORDERS_IN_SECONDS ||
@@ -14,14 +15,8 @@ if (
   throw new Error("Environment variables not set");
 }
 
-const roundToTick = (number: number, tickSize: string) => {
-  const tickSizeValue = parseFloat(tickSize);
-  if (isNaN(tickSizeValue) || tickSizeValue <= 0) {
-    throw new Error("Invalid tickSize value");
-  }
-
-  const roundedNumber = Math.round(number / tickSizeValue) * tickSizeValue;
-  return parseFloat(roundedNumber.toFixed(tickSize.split(".")[1].length));
+const roundToTick = (number: bigDecimal, tickSize: bigDecimal) => {
+  return number.divide(tickSize).round().multiply(tickSize);
 };
 
 const parseArgs = (args: string[]) => {
@@ -48,16 +43,16 @@ const main = async () => {
   }
 
   const { priceFilter, lotSizeFilter } = info.result.list[0];
-  const minPrice = roundToTick(+min, priceFilter.tickSize);
-  const maxPrice = roundToTick(+max, priceFilter.tickSize);
-  const interval = (maxPrice - minPrice) / 100;
+  const minPrice = roundToTick(new bigDecimal(min), new bigDecimal(priceFilter.tickSize));
+  const maxPrice = roundToTick(new bigDecimal(max), new bigDecimal(priceFilter.tickSize));
+  const interval = maxPrice.subtract(minPrice).divide(new bigDecimal(100))
 
   const orders = [minPrice];
   let tmp = minPrice;
 
   for (let i = 0; i < 97; i++) {
-    tmp += interval;
-    orders.push(roundToTick(tmp, priceFilter.tickSize));
+    tmp = tmp.add(interval);
+    orders.push(roundToTick(tmp, new bigDecimal(priceFilter.tickSize)));
   }
 
   orders.push(maxPrice);
@@ -66,13 +61,13 @@ const main = async () => {
     const resp = await client.submitOrder({
       category: "spot",
       symbol: TICKER,
-      side: "Sell",
+      side: "Buy",
       orderType: "Limit",
       qty: `${roundToTick(
-        +amount / 100 / orders[i],
-        lotSizeFilter.basePrecision
-      )}`,
-      price: `${orders[i]}`,
+        (new bigDecimal(amount)).divide(new bigDecimal(100)).divide(orders[i]),
+        new bigDecimal(lotSizeFilter.basePrecision)
+      ).getValue()}`,
+      price: `${orders[i].getValue()}`,
     });
     console.log(resp.retMsg);
   }
